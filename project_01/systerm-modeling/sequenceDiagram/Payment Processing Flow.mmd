@@ -1,0 +1,74 @@
+sequenceDiagram
+    participant Customer as Customer
+    participant Agent as Agent
+    participant API as Django API
+    participant PaymentService as Payment Service
+    participant BankingAPI as Banking API
+    participant DB as Database
+    participant NotificationService as Notification Service
+    participant DebtService as Debt Service
+
+    Customer->>Agent: Wants to make payment
+    Agent->>API: POST /thanh-toan/ {payment_data}
+    API->>PaymentService: process_payment(payment_data)
+    
+    PaymentService->>DB: GET payment due details
+    DB-->>PaymentService: Payment due info
+    
+    PaymentService->>PaymentService: validate_payment_amount()
+    
+    alt Amount matches due amount
+        PaymentService->>BankingAPI: process_bank_transfer(payment_details)
+        BankingAPI->>BankingAPI: validate_account_details()
+        BankingAPI->>BankingAPI: check_available_balance()
+        
+        alt Banking transaction successful
+            BankingAPI-->>PaymentService: Transaction successful {transaction_id}
+            
+            PaymentService->>DB: INSERT INTO thanh_toan (status=thanh_cong)
+            DB-->>PaymentService: Payment record created
+            
+            PaymentService->>DB: UPDATE phi_thanh_toan SET da_thanh_toan=true
+            DB-->>PaymentService: Payment due updated
+            
+            PaymentService->>DB: UPDATE hop_dong SET last_payment_date
+            DB-->>PaymentService: Contract updated
+            
+            PaymentService-->>API: Payment successful
+            
+            API->>NotificationService: send_payment_confirmation(customer, payment)
+            NotificationService-->>API: Confirmation sent
+            
+            API-->>Agent: 201 Created {ma_thanh_toan, status: "thanh_cong"}
+            
+        else Banking transaction failed
+            BankingAPI-->>PaymentService: Transaction failed {error_reason}
+            
+            PaymentService->>DB: INSERT INTO thanh_toan (status=that_bai)
+            DB-->>PaymentService: Failed payment recorded
+            
+            PaymentService-->>API: Payment failed
+            API-->>Agent: 400 Bad Request {error: "Banking transaction failed"}
+        end
+        
+    else Amount doesn't match
+        PaymentService-->>API: Invalid amount
+        API-->>Agent: 400 Bad Request {error: "Payment amount mismatch"}
+    end
+
+    Note over Customer,DebtService: If payment is overdue, debt management kicks in
+
+    API->>DebtService: check_overdue_payments()
+    DebtService->>DB: SELECT overdue payments
+    DB-->>DebtService: Overdue payment list
+    
+    loop For each overdue payment
+        DebtService->>DebtService: calculate_late_fees()
+        DebtService->>DB: INSERT INTO cong_no
+        DB-->>DebtService: Debt record created
+        
+        DebtService->>NotificationService: send_overdue_notice(customer)
+        NotificationService-->>DebtService: Notice sent
+    end
+    
+    DebtService-->>API: Debt management completed

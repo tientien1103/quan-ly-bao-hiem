@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant Client as Client Application
+    participant API as Django API
+    participant Auth as Authentication Service
+    participant DB as Database
+    participant JWT as JWT Service
+    participant Cache as Redis Cache
+
+    Client->>API: POST /auth/login/ {username, password}
+    API->>Auth: validate_credentials()
+    Auth->>DB: SELECT user WHERE username=?
+    DB-->>Auth: User data
+
+    alt Valid credentials
+        Auth->>Auth: check_password()
+        Auth->>JWT: generate_tokens(user)
+        JWT-->>Auth: {access_token, refresh_token}
+        Auth->>Cache: store_user_session(user_id, token)
+        Cache-->>Auth: Session stored
+        Auth-->>API: Authentication successful
+        API-->>Client: {access_token, refresh_token, user_info}
+    else Invalid credentials
+        Auth-->>API: Authentication failed
+        API-->>Client: 401 Unauthorized {error: "Invalid credentials"}
+    end
+
+    Note over Client,Cache: Subsequent API calls include Authorization header
+
+    Client->>API: GET /khachhang/ (with Bearer token)
+    API->>Auth: validate_token(access_token)
+    Auth->>JWT: decode_token(access_token)
+    JWT-->>Auth: User claims
+    Auth->>Cache: get_user_session(user_id)
+    Cache-->>Auth: Session data
+    Auth-->>API: Token valid + User info
+    API->>API: Execute business logic
+    API-->>Client: Response data

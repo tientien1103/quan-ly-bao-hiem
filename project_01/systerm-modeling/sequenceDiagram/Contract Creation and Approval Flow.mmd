@@ -1,0 +1,81 @@
+sequenceDiagram
+    participant Agent as Agent User
+    participant API as Django API
+    participant ContractService as Contract Service
+    participant FeeCalculator as Fee Calculator
+    participant ValidationService as Validation Service
+    participant Manager as Manager User
+    participant DB as Database
+    participant NotificationService as Notification Service
+
+    Agent->>API: POST /hopdong/ {contract_data}
+    API->>ValidationService: validate_contract_data()
+    
+    ValidationService->>DB: GET customer age
+    DB-->>ValidationService: Customer age
+    ValidationService->>DB: GET product age limits
+    DB-->>ValidationService: Product constraints
+    ValidationService->>ValidationService: check_age_eligibility()
+    ValidationService->>ValidationService: validate_insurance_amount()
+    ValidationService->>ValidationService: validate_date_ranges()
+    ValidationService-->>API: Validation passed
+    
+    API->>FeeCalculator: calculate_premium(customer, product, amount)
+    FeeCalculator->>DB: GET COI fee table
+    DB-->>FeeCalculator: COI rates
+    FeeCalculator->>DB: GET management fee rates
+    DB-->>FeeCalculator: Management rates
+    FeeCalculator->>FeeCalculator: calculate_base_premium()
+    FeeCalculator->>FeeCalculator: calculate_coi_fee()
+    FeeCalculator->>FeeCalculator: calculate_management_fee()
+    FeeCalculator-->>API: Total premium calculated
+    
+    API->>ContractService: create_contract(contract_data, calculated_premium)
+    ContractService->>DB: INSERT INTO hop_dong (status=cho_duyet)
+    DB->>DB: Generate ma_hd (auto)
+    DB-->>ContractService: Contract created (ma_hd)
+    ContractService-->>API: Contract object
+    
+    API->>NotificationService: notify_manager_for_approval(contract)
+    NotificationService-->>API: Notification sent
+    
+    API-->>Agent: 201 Created {ma_hd, contract_data, status: "cho_duyet"}
+
+    Note over Agent,NotificationService: Manager receives notification and reviews contract
+
+    Manager->>API: GET /hopdong/HD87654321/
+    API->>DB: SELECT contract details
+    DB-->>API: Contract data
+    API-->>Manager: Contract details for review
+
+    alt Manager approves
+        Manager->>API: PATCH /hopdong/HD87654321/ {status: "hoat_dong"}
+        API->>ContractService: approve_contract(ma_hd)
+        ContractService->>DB: UPDATE hop_dong SET status='hoat_dong'
+        DB-->>ContractService: Contract activated
+        ContractService->>FeeCalculator: create_payment_schedule(contract)
+        FeeCalculator->>FeeCalculator: calculate_monthly_payments()
+        loop For each payment period
+            FeeCalculator->>DB: INSERT INTO phi_thanh_toan
+            DB-->>FeeCalculator: Payment schedule created
+        end
+        FeeCalculator-->>ContractService: Payment schedule created
+        ContractService-->>API: Contract approved
+        
+        API->>NotificationService: notify_contract_approved(agent, customer)
+        NotificationService-->>API: Notifications sent
+        
+        API-->>Manager: 200 OK {contract_data, status: "hoat_dong"}
+        
+    else Manager rejects
+        Manager->>API: PATCH /hopdong/HD87654321/ {status: "huy_bo", rejection_reason}
+        API->>ContractService: reject_contract(ma_hd, reason)
+        ContractService->>DB: UPDATE hop_dong SET status='huy_bo'
+        DB-->>ContractService: Contract rejected
+        ContractService-->>API: Contract rejected
+        
+        API->>NotificationService: notify_contract_rejected(agent, customer, reason)
+        NotificationService-->>API: Notifications sent
+        
+        API-->>Manager: 200 OK {contract_data, status: "huy_bo"}
+    end
