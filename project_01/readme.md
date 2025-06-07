@@ -1,3 +1,8 @@
+# Đứng ở thư mục insurance_management
+# Bước 1: → python manage.py runserver
+# Bước 2: → venv\Scripts\activate 
+
+<!--  -->
 # 1. Tạo thư mục dự án và thiết lập môi trường ảo
 mkdir insurance_management
 cd insurance_management
