@@ -1,0 +1,74 @@
+sequenceDiagram
+    participant Client as Client
+    participant API as Django API
+    participant Service as Business Service
+    participant DB as Database
+    participant Logger as Error Logger
+    participant NotificationService as Notification Service
+
+    Client->>+API: POST /hopdong/ {invalid_contract_data}
+    API->>+Service: create_contract(invalid_data)
+    
+    Service->>+DB: BEGIN TRANSACTION
+    DB-->>-Service: Transaction started
+    
+    Service->>Service: validate_customer_exists()
+    Service->>+DB: SELECT customer
+    DB-->>-Service: Customer not found
+    
+    Service->>+Logger: log_error("Customer not found", context)
+    Logger-->>-Service: Error logged
+    
+    Service->>+DB: ROLLBACK TRANSACTION
+    DB-->>-Service: Transaction rolled back
+    
+    Service-->>-API: ValidationError("Customer does not exist")
+    
+    API->>+Logger: log_api_error(request, error)
+    Logger-->>-API: API error logged
+    
+    API-->>-Client: 400 Bad Request {error: "Customer does not exist"}
+
+    Note over Client,NotificationService: Complex transaction with partial failure
+
+    Client->>+API: POST /thanh-toan/ {payment_data}
+    API->>+Service: process_payment(payment_data)
+    
+    Service->>+DB: BEGIN TRANSACTION
+    DB-->>-Service: Transaction started
+    
+    Service->>+DB: INSERT INTO thanh_toan
+    DB-->>-Service: Payment record created
+    
+    Service->>Service: call_banking_api()
+    Service->>Service: Banking API fails
+    
+    Service->>+Logger: log_error("Banking API failure", payment_context)
+    Logger-->>-Service: Error logged
+    
+    Service->>+DB: UPDATE thanh_toan SET status='that_bai'
+    DB-->>-Service: Payment status updated
+    
+    Service->>+DB: COMMIT TRANSACTION
+    DB-->>-Service: Transaction committed
+    
+    Service->>+NotificationService: notify_payment_failure(customer, reason)
+    NotificationService-->>-Service: Failure notification sent
+    
+    Service-->>-API: PaymentError("Banking transaction failed")
+    API-->>-Client: 400 Bad Request {error: "Payment processing failed", payment_id: "TT123"}
+
+    Note over Client,NotificationService: System-level error handling
+
+    Client->>+API: GET /khachhang/
+    API->>+Service: get_customer_list()
+    Service->>+DB: SELECT FROM khach_hang
+    DB->>DB: Database connection lost
+    DB-->>-Service: DatabaseError("Connection lost")
+    
+    Service->>+Logger: log_critical_error("Database connection lost")
+    Logger->>Logger: Send alert to operations team
+    Logger-->>-Service: Critical error logged
+    
+    Service-->>-API: DatabaseError("Service temporarily unavailable")
+    API-->>-Client: 503 Service Unavailable {error: "System temporarily unavailable"}

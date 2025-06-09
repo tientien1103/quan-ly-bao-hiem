@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant Admin as Admin User
+    participant API as Django API
+    participant ProductService as Product Service
+    participant FeeService as Fee Service
+    participant DB as Database
+    participant ValidationService as Validation Service
+
+    Admin->>+API: POST /sanpham/ {product_data}
+    API->>+ValidationService: validate_product_data()
+    
+    ValidationService->>ValidationService: validate_fee_ranges()
+    ValidationService->>ValidationService: validate_age_limits()
+    ValidationService->>ValidationService: validate_term_limits()
+    ValidationService-->>-API: Validation passed
+    
+    API->>+ProductService: create_product(product_data)
+    ProductService->>+DB: INSERT INTO san_pham
+    DB->>DB: Generate ma_sp (auto)
+    DB-->>-ProductService: Product created (ma_sp)
+    ProductService-->>-API: Product object
+    
+    API->>+FeeService: create_default_fee_structure(ma_sp)
+    
+    FeeService->>+DB: INSERT INTO phi_quan_ly
+    DB-->>-FeeService: Management fee created
+    
+    FeeService->>FeeService: create_default_coi_tables()
+    loop For each age group
+        FeeService->>+DB: INSERT INTO bang_phi_coi
+        DB-->>-FeeService: COI fee table created
+    end
+    
+    FeeService-->>-API: Fee structure created
+    
+    API-->>-Admin: 201 Created {ma_sp, product_data}
+
+    Note over Admin,DB: Admin can then customize COI fee tables
+    
+    Admin->>+API: POST /phi-coi/ {age_range_fee_data}
+    API->>+FeeService: create_coi_fee_table(fee_data)
+    FeeService->>+ValidationService: validate_age_range_overlap()
+    ValidationService-->>-FeeService: No overlap found
+    FeeService->>+DB: INSERT INTO bang_phi_coi
+    DB-->>-FeeService: COI table created
+    FeeService-->>-API: COI table object
+    API-->>-Admin: 201 Created {coi_table_data}

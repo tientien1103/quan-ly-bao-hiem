@@ -1,0 +1,272 @@
+erDiagram
+    CustomUser {
+        varchar username PK "Tên đăng nhập"
+        varchar email UK "Email"
+        varchar phone UK "Số điện thoại"
+        varchar first_name "Tên"
+        varchar last_name "Họ"
+        varchar password "Mật khẩu (hashed)"
+        varchar role "admin/manager/agent/customer"
+        boolean is_staff "Là nhân viên"
+        boolean is_superuser "Là quản trị viên"
+        boolean is_active "Đang hoạt động"
+        datetime date_joined "Ngày tham gia"
+        datetime last_login "Lần đăng nhập cuối"
+    }
+
+    Address {
+        int id PK "ID địa chỉ"
+        varchar street "Số nhà, đường"
+        varchar ward "Phường/Xã"
+        varchar district "Quận/Huyện"
+        varchar city "Tỉnh/Thành phố"
+        varchar country "Quốc gia"
+        varchar postal_code "Mã bưu điện"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    KhachHang {
+        varchar ma_kh PK "Mã khách hàng"
+        varchar user FK "Tài khoản liên kết"
+        varchar ho_ten "Họ và tên"
+        date ngay_sinh "Ngày sinh"
+        varchar gioi_tinh "nam/nu/khac"
+        varchar so_cmnd UK "Số CMND/CCCD"
+        date ngay_cap_cmnd "Ngày cấp CMND"
+        varchar noi_cap_cmnd "Nơi cấp CMND"
+        varchar so_dien_thoai "Số điện thoại"
+        varchar email "Email"
+        int dia_chi FK "Địa chỉ"
+        varchar nghe_nghiep "Nghề nghiệp"
+        varchar noi_lam_viec "Nơi làm việc"
+        decimal thu_nhap_hang_thang "Thu nhập/tháng"
+        varchar trang_thai "hoat_dong/tam_dung/khoa"
+        datetime ngay_dang_ky "Ngày đăng ký"
+        varchar ten_nguoi_thu_huong "Tên người thụ hưởng"
+        varchar quan_he_nguoi_thu_huong "Quan hệ với người thụ hưởng"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    SanPham {
+        varchar ma_sp PK "Mã sản phẩm"
+        varchar ten_san_pham "Tên sản phẩm"
+        text mo_ta "Mô tả chi tiết"
+        varchar loai_san_pham "nhan_tho/suc_khoe/xe_co/nha_o/du_lich/doanh_nghiep"
+        decimal phi_bao_hiem_toi_thieu "Phí BH tối thiểu"
+        decimal phi_bao_hiem_toi_da "Phí BH tối đa"
+        decimal so_tien_bao_hiem_toi_thieu "Số tiền BH tối thiểu"
+        decimal so_tien_bao_hiem_toi_da "Số tiền BH tối đa"
+        int thoi_han_toi_thieu "Thời hạn tối thiểu (tháng)"
+        int thoi_han_toi_da "Thời hạn tối đa (tháng)"
+        int tuoi_toi_thieu "Tuổi tối thiểu"
+        int tuoi_toi_da "Tuổi tối đa"
+        decimal ty_le_phi_quan_ly "Tỷ lệ phí quản lý (%)"
+        varchar trang_thai "hoat_dong/tam_dung/ngung_ban"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    HopDong {
+        varchar ma_hd PK "Mã hợp đồng"
+        varchar khach_hang FK "Mã khách hàng"
+        varchar san_pham FK "Mã sản phẩm"
+        varchar nhan_vien_ban FK "Nhân viên bán"
+        date ngay_ky "Ngày ký hợp đồng"
+        date ngay_hieu_luc "Ngày có hiệu lực"
+        date ngay_ket_thuc "Ngày kết thúc"
+        decimal so_tien_bao_hiem "Số tiền bảo hiểm"
+        decimal phi_bao_hiem "Phí bảo hiểm"
+        varchar ky_han_dong_phi "hang_thang/hang_quy/hang_nam/mot_lan"
+        varchar trang_thai "cho_duyet/hoat_dong/tam_dung/het_han/huy_bo"
+        varchar ten_nguoi_thu_huong "Tên người thụ hưởng"
+        varchar quan_he_nguoi_thu_huong "Quan hệ với người thụ hưởng"
+        text ghi_chu "Ghi chú"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    BangPhiCoi {
+        varchar ma_phi_coi PK "Mã bảng phí coi"
+        varchar san_pham FK "Mã sản phẩm"
+        int tuoi_tu "Tuổi từ"
+        int tuoi_den "Tuổi đến"
+        decimal menh_gia_tu "Mệnh giá từ"
+        decimal menh_gia_den "Mệnh giá đến"
+        decimal ty_le_phi "Tỷ lệ phí (%)"
+        decimal phi_co_dinh "Phí cố định"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    PhiQuanLy {
+        varchar ma_phi_ql PK "Mã phí quản lý"
+        varchar san_pham FK "Mã sản phẩm"
+        decimal ty_le_phi_quan_ly "Tỷ lệ phí quản lý (%)"
+        decimal phi_quan_ly_toi_thieu "Phí quản lý tối thiểu"
+        decimal phi_quan_ly_toi_da "Phí quản lý tối đa"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    PhiThanhToan {
+        varchar ma_phi_tt PK "Mã phí thanh toán"
+        varchar hop_dong FK "Mã hợp đồng"
+        date thang_nam "Tháng năm áp dụng"
+        decimal phi_bao_hiem "Phí bảo hiểm"
+        decimal phi_quan_ly "Phí quản lý"
+        decimal phi_coi "Phí coi"
+        decimal tong_phi "Tổng phí"
+        date ngay_dao_han "Ngày đáo hạn"
+        boolean da_thanh_toan "Đã thanh toán"
+        date ngay_thanh_toan "Ngày thanh toán thực tế"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    ThanhToan {
+        varchar ma_thanh_toan PK "Mã giao dịch thanh toán"
+        varchar hop_dong FK "Mã hợp đồng"
+        varchar phi_thanh_toan FK "Mã phí thanh toán"
+        decimal so_tien "Số tiền thanh toán"
+        varchar phuong_thuc_thanh_toan "tien_mat/chuyen_khoan/the_tin_dung/vi_dien_tu/internet_banking"
+        datetime ngay_thanh_toan "Thời gian thanh toán"
+        varchar trang_thai "cho_xu_ly/thanh_cong/that_bai/huy_bo"
+        varchar ma_giao_dich_ngan_hang "Mã giao dịch ngân hàng"
+        varchar ten_ngan_hang "Tên ngân hàng"
+        varchar nhan_vien_xu_ly FK "Nhân viên xử lý"
+        text ghi_chu "Ghi chú"
+        text ly_do_that_bai "Lý do thất bại"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    CongNo {
+        varchar ma_cong_no PK "Mã công nợ"
+        varchar hop_dong FK "Mã hợp đồng"
+        decimal so_tien_no "Số tiền nợ"
+        date ngay_phat_sinh "Ngày phát sinh nợ"
+        date ngay_dao_han "Ngày đáo hạn"
+        boolean da_thanh_toan "Đã thanh toán"
+        date ngay_thanh_toan "Ngày thanh toán"
+        decimal phi_tre_han "Phí trễ hạn"
+        decimal ty_le_phi_tre_han "Tỷ lệ phí trễ hạn (%/ngày)"
+        text ghi_chu "Ghi chú"
+        datetime created_at "Ngày tạo"
+        datetime updated_at "Ngày cập nhật"
+        varchar created_by FK "Người tạo"
+        varchar updated_by FK "Người cập nhật"
+        boolean is_active "Đang hoạt động"
+    }
+
+    AuditLog {
+        int id PK "ID log"
+        varchar table_name "Tên bảng"
+        varchar record_id "ID bản ghi"
+        varchar action "Hành động (CREATE/UPDATE/DELETE)"
+        json old_values "Giá trị cũ"
+        json new_values "Giá trị mới"
+        varchar user FK "Người thực hiện"
+        datetime timestamp "Thời gian"
+        varchar ip_address "Địa chỉ IP"
+        varchar user_agent "User Agent"
+        text description "Mô tả thay đổi"
+    }
+
+    Document {
+        varchar ma_tai_lieu PK "Mã tài liệu"
+        varchar hop_dong FK "Mã hợp đồng"
+        varchar loai_tai_lieu "hop_dong/cmnd/giay_kham/khac"
+        varchar ten_file "Tên file"
+        varchar duong_dan "Đường dẫn file"
+        varchar mime_type "Loại file"
+        int kich_thuoc "Kích thước (bytes)"
+        varchar mo_ta "Mô tả"
+        datetime created_at "Ngày tạo"
+        varchar created_by FK "Người tạo"
+        boolean is_active "Đang hoạt động"
+    }
+
+    NotificationLog {
+        int id PK "ID thông báo"
+        varchar recipient_type "user/customer/agent/manager"
+        varchar recipient_id FK "ID người nhận"
+        varchar notification_type "email/sms/push/system"
+        varchar subject "Tiêu đề"
+        text content "Nội dung"
+        json metadata "Dữ liệu bổ sung"
+        varchar status "pending/sent/failed/read"
+        datetime sent_at "Thời gian gửi"
+        datetime read_at "Thời gian đọc"
+        int retry_count "Số lần thử lại"
+        text error_message "Thông báo lỗi"
+        datetime created_at "Ngày tạo"
+    }
+
+    %% Primary Relationships
+    CustomUser ||--o{ KhachHang : "user account"
+    CustomUser ||--o{ HopDong : "sales agent"
+    CustomUser ||--o{ ThanhToan : "processing agent"
+    
+    %% Address Relationships
+    Address ||--o{ KhachHang : "customer address"
+    
+    %% Customer Relationships
+    KhachHang ||--o{ HopDong : "owns contracts"
+    
+    %% Product Relationships
+    SanPham ||--o{ HopDong : "applied to contracts"
+    SanPham ||--|| PhiQuanLy : "has management fee"
+    SanPham ||--o{ BangPhiCoi : "has COI fee tables"
+    
+    %% Contract Relationships
+    HopDong ||--o{ PhiThanhToan : "generates payment dues"
+    HopDong ||--o{ ThanhToan : "has payments"
+    HopDong ||--o{ CongNo : "may have debts"
+    HopDong ||--o{ Document : "has documents"
+    
+    %% Payment Relationships
+    PhiThanhToan ||--o{ ThanhToan : "paid by transactions"
+    
+    %% Audit Relationships
+    CustomUser ||--o{ AuditLog : "performs actions"
+    
+    %% Notification Relationships
+    CustomUser ||--o{ NotificationLog : "receives notifications"
+    
+    %% Audit Trail Relationships (created_by, updated_by)
+    CustomUser ||--o{ Address : "creates/updates"
+    CustomUser ||--o{ KhachHang : "creates/updates"
+    CustomUser ||--o{ SanPham : "creates/updates"
+    CustomUser ||--o{ HopDong : "creates/updates"
+    CustomUser ||--o{ BangPhiCoi : "creates/updates"
+    CustomUser ||--o{ PhiQuanLy : "creates/updates"
+    CustomUser ||--o{ PhiThanhToan : "creates/updates"
+    CustomUser ||--o{ ThanhToan : "creates/updates"
+    CustomUser ||--o{ CongNo : "creates/updates"
+    CustomUser ||--o{ Document : "creates"

@@ -1,0 +1,40 @@
+flowchart TD
+    A[Scheduler chạy đầu tháng] --> B[Lấy tất cả hợp đồng hoạt động]
+    B --> C[Lọc hợp đồng còn hiệu lực]
+    C --> D[Bắt đầu vòng lặp hợp đồng]
+    
+    D --> E[Lấy hợp đồng tiếp theo]
+    E --> F{Còn hợp đồng?}
+    F -->|Không| G[Hoàn thành tất cả HĐ]
+    
+    F -->|Có| H[Kiểm tra đã tạo phí tháng này]
+    H --> I{Đã tạo phí?}
+    I -->|Có| J[Bỏ qua hợp đồng này]
+    J --> E
+    
+    I -->|Không| K[Tính phí cho tháng này]
+    K --> L[Lấy thông tin sản phẩm]
+    L --> M[Tính phí bảo hiểm cơ bản]
+    M --> N[Tính phí coi theo tuổi]
+    N --> O[Tính phí quản lý]
+    
+    O --> P[Tổng hợp tất cả loại phí]
+    P --> Q[Xác định ngày đáo hạn]
+    Q --> R[Tạo record PhiThanhToan]
+    
+    R --> S{Tạo thành công?}
+    S -->|Không| T[Ghi log lỗi]
+    T --> U[Thông báo admin]
+    U --> V[Tiếp tục hợp đồng khác]
+    V --> E
+    
+    S -->|Có| W[Lên lịch gửi thông báo]
+    W --> X[Cập nhật trạng thái hợp đồng]
+    X --> Y[Ghi log thành công]
+    Y --> E
+    
+    G --> Z[Tổng hợp báo cáo]
+    Z --> AA[Thông báo hoàn thành cho admin]
+    AA --> BB[Gửi thông báo cho khách hàng]
+    BB --> CC[Lên lịch reminder]
+    CC --> DD[Hoàn thành chu kỳ tháng]

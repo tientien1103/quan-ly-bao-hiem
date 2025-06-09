@@ -1,0 +1,46 @@
+flowchart TD
+    A[Khách hàng muốn thanh toán] --> B[Agent kiểm tra phí đến hạn]
+    B --> C[Hiển thị số tiền cần thanh toán]
+    C --> D[Khách hàng chọn phương thức]
+    
+    D --> E{Phương thức thanh toán}
+    E -->|Tiền mặt| F[Nhận tiền mặt]
+    E -->|Chuyển khoản| G[Nhập thông tin TK]
+    E -->|Thẻ tín dụng| H[Nhập thông tin thẻ]
+    
+    F --> I[Tạo biên lai tiền mặt]
+    G --> J[Gọi API ngân hàng]
+    H --> K[Gọi API payment gateway]
+    
+    J --> L{Giao dịch ngân hàng thành công?}
+    K --> M{Giao dịch thẻ thành công?}
+    
+    L -->|Không| N[Thông báo lỗi giao dịch]
+    M -->|Không| N
+    L -->|Có| O[Lưu mã giao dịch]
+    M -->|Có| O
+    
+    I --> P[Tạo record thanh toán THÀNH CÔNG]
+    O --> P
+    
+    N --> Q[Tạo record thanh toán THẤT BẠI]
+    Q --> R[Lưu lý do thất bại]
+    R --> S[Thông báo cho khách hàng]
+    S --> T{Thử lại?}
+    T -->|Có| D
+    T -->|Không| U[Kết thúc giao dịch]
+    
+    P --> V[Cập nhật trạng thái phí = ĐÃ THANH TOÁN]
+    V --> W[Cập nhật ngày thanh toán]
+    W --> X[Gửi xác nhận thanh toán]
+    X --> Y[Kiểm tra có kỳ tiếp theo không]
+    
+    Y --> Z{Còn kỳ hạn tiếp theo?}
+    Z -->|Có| AA[Tạo phí kỳ tiếp theo]
+    Z -->|Không| BB[Hoàn thành hợp đồng]
+    
+    AA --> CC[Lên lịch nhắc nhở]
+    CC --> DD[Thanh toán hoàn tất]
+    BB --> DD
+    
+    U --> EE[Ghi log thất bại]

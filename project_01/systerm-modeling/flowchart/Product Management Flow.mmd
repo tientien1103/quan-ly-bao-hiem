@@ -1,0 +1,36 @@
+flowchart TD
+    A[Admin/Manager tạo sản phẩm] --> B[Nhập thông tin sản phẩm]
+    B --> C[Chọn loại bảo hiểm]
+    C --> D[Thiết lập giới hạn phí]
+    D --> E[Thiết lập giới hạn số tiền BH]
+    E --> F[Thiết lập độ tuổi áp dụng]
+    F --> G[Thiết lập thời hạn]
+    
+    G --> H[Validate business rules]
+    H --> I{Rules hợp lệ?}
+    I -->|Không| J[Hiển thị lỗi validation]
+    J --> K[Sửa thông tin]
+    K --> H
+    
+    I -->|Có| L[Tạo sản phẩm]
+    L --> M[Tự động tạo mã sản phẩm]
+    M --> N[Tạo bảng phí quản lý mặc định]
+    
+    N --> O[Thiết lập bảng phí coi]
+    O --> P[Nhập nhóm tuổi 18-30]
+    P --> Q[Nhập nhóm tuổi 31-45]
+    Q --> R[Nhập nhóm tuổi 46-65]
+    
+    R --> S[Validate không overlap tuổi]
+    S --> T{Có overlap?}
+    T -->|Có| U[Hiển thị lỗi overlap]
+    U --> V[Sửa bảng phí]
+    V --> S
+    
+    T -->|Không| W[Lưu tất cả bảng phí]
+    W --> X[Kích hoạt sản phẩm]
+    X --> Y[Thông báo tạo thành công]
+    
+    Y --> Z{Muốn tạo sản phẩm khác?}
+    Z -->|Có| A
+    Z -->|Không| AA[Hoàn thành]
