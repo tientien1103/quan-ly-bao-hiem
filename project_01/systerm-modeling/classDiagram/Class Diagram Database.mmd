@@ -18,24 +18,6 @@ classDiagram
         +has_perm(permission) Boolean
     }
 
-    class Address {
-        +Integer id [PK]
-        +String street
-        +String ward
-        +String district
-        +String city
-        +String country
-        +String postal_code
-        +DateTime created_at
-        +DateTime updated_at
-        +CustomUser created_by [FK]
-        +CustomUser updated_by [FK]
-        +Boolean is_active
-        +get_full_address() String
-        +save() void
-        +delete() void
-    }
-
     class KhachHang {
         +String ma_kh [PK]
         +CustomUser user [FK, nullable]
@@ -47,7 +29,6 @@ classDiagram
         +String noi_cap_cmnd
         +String so_dien_thoai
         +String email
-        +Address dia_chi [FK, nullable]
         +String nghe_nghiep
         +String noi_lam_viec
         +Decimal thu_nhap_hang_thang
@@ -238,14 +219,12 @@ classDiagram
     CustomUser "1" *--> "*" KhachHang : quan_ly
     CustomUser "1" *--> "*" HopDong : ban_hang
     CustomUser "1" *--> "*" ThanhToan : xu_ly
-    CustomUser "1" *--> "*" Address : tao_dia_chi
     CustomUser "1" *--> "*" SanPham : quan_ly_sp
     CustomUser "1" *--> "*" BangPhiCoi : cau_hinh_phi
     CustomUser "1" *--> "*" PhiQuanLy : thiet_lap_phi
     CustomUser "1" *--> "*" PhiThanhToan : tao_phi_tt
     CustomUser "1" *--> "*" CongNo : theo_doi_no
     
-    Address "1" --> "*" KhachHang : dia_chi_cua
     
     KhachHang "1" --> "*" HopDong : so_huu
     SanPham "1" --> "*" HopDong : ap_dung_cho
