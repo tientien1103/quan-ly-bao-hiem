@@ -103,7 +103,7 @@ class SanPham(BaseModel):
         
         # Công thức tính phí cơ bản (có thể tùy chỉnh)
         he_so_tuoi = 1 + (tuoi - 25) * Decimal('0.02')
-        phi_co_ban = so_tien_bao_hiem * Decimal('0.01') * he_so_tuoi
+        phi_co_ban = Decimal(str(so_tien_bao_hiem)) * Decimal('0.01') * he_so_tuoi
         
         return max(self.phi_bao_hiem_toi_thieu, 
                   min(phi_co_ban, self.phi_bao_hiem_toi_da))
