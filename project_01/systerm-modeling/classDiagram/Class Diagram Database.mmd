@@ -1,0 +1,259 @@
+classDiagram
+    class CustomUser {
+        +String username [PK]
+        +String email [UK]
+        +String phone [UK] 
+        +String role
+        +String first_name
+        +String last_name
+        +String password
+        +Boolean is_staff
+        +Boolean is_superuser
+        +Boolean is_active
+        +DateTime date_joined
+        +DateTime last_login
+        +check_password(password) Boolean
+        +set_password(password) void
+        +get_full_name() String
+        +has_perm(permission) Boolean
+    }
+
+    class Address {
+        +Integer id [PK]
+        +String street
+        +String ward
+        +String district
+        +String city
+        +String country
+        +String postal_code
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +get_full_address() String
+        +save() void
+        +delete() void
+    }
+
+    class KhachHang {
+        +String ma_kh [PK]
+        +CustomUser user [FK, nullable]
+        +String ho_ten
+        +Date ngay_sinh
+        +String gioi_tinh
+        +String so_cmnd [UK]
+        +Date ngay_cap_cmnd
+        +String noi_cap_cmnd
+        +String so_dien_thoai
+        +String email
+        +Address dia_chi [FK, nullable]
+        +String nghe_nghiep
+        +String noi_lam_viec
+        +Decimal thu_nhap_hang_thang
+        +String trang_thai
+        +DateTime ngay_dang_ky
+        +String ten_nguoi_thu_huong
+        +String quan_he_nguoi_thu_huong
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +tuoi() Integer
+        +save() void
+        +delete() void
+        +is_eligible_for_product(product) Boolean
+    }
+
+    class SanPham {
+        +String ma_sp [PK]
+        +String ten_san_pham
+        +Text mo_ta
+        +String loai_san_pham
+        +Decimal phi_bao_hiem_toi_thieu
+        +Decimal phi_bao_hiem_toi_da
+        +Decimal so_tien_bao_hiem_toi_thieu
+        +Decimal so_tien_bao_hiem_toi_da
+        +Integer thoi_han_toi_thieu
+        +Integer thoi_han_toi_da
+        +Integer tuoi_toi_thieu
+        +Integer tuoi_toi_da
+        +Decimal ty_le_phi_quan_ly
+        +String trang_thai
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +tinh_phi_co_ban(tuoi, so_tien) Decimal
+        +is_age_eligible(age) Boolean
+        +is_amount_valid(amount) Boolean
+        +save() void
+        +delete() void
+    }
+
+    class HopDong {
+        +String ma_hd [PK]
+        +KhachHang khach_hang [FK]
+        +SanPham san_pham [FK]
+        +CustomUser nhan_vien_ban [FK, nullable]
+        +Date ngay_ky
+        +Date ngay_hieu_luc
+        +Date ngay_ket_thuc
+        +Decimal so_tien_bao_hiem
+        +Decimal phi_bao_hiem
+        +String ky_han_dong_phi
+        +String trang_thai
+        +String ten_nguoi_thu_huong
+        +String quan_he_nguoi_thu_huong
+        +Text ghi_chu
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +so_thang_hieu_luc() Integer
+        +is_hieu_luc() Boolean
+        +tinh_phi_hang_thang(thang_nam) Decimal
+        +activate() void
+        +suspend() void
+        +terminate() void
+        +save() void
+        +delete() void
+    }
+
+    class BangPhiCoi {
+        +String ma_phi_coi [PK]
+        +SanPham san_pham [FK]
+        +Integer tuoi_tu
+        +Integer tuoi_den
+        +Decimal menh_gia_tu
+        +Decimal menh_gia_den
+        +Decimal ty_le_phi
+        +Decimal phi_co_dinh
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +tinh_phi(menh_gia) Decimal
+        +is_applicable(age, amount) Boolean
+        +save() void
+        +delete() void
+    }
+
+    class PhiQuanLy {
+        +String ma_phi_ql [PK]
+        +SanPham san_pham [FK]
+        +Decimal ty_le_phi_quan_ly
+        +Decimal phi_quan_ly_toi_thieu
+        +Decimal phi_quan_ly_toi_da
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +tinh_phi_quan_ly(phi_bao_hiem) Decimal
+        +save() void
+        +delete() void
+    }
+
+    class PhiThanhToan {
+        +String ma_phi_tt [PK]
+        +HopDong hop_dong [FK]
+        +Date thang_nam
+        +Decimal phi_bao_hiem
+        +Decimal phi_quan_ly
+        +Decimal phi_coi
+        +Decimal tong_phi
+        +Date ngay_dao_han
+        +Boolean da_thanh_toan
+        +Date ngay_thanh_toan
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +qua_han() Boolean
+        +so_ngay_qua_han() Integer
+        +mark_as_paid() void
+        +calculate_total() void
+        +save() void
+        +delete() void
+    }
+
+    class ThanhToan {
+        +String ma_thanh_toan [PK]
+        +HopDong hop_dong [FK]
+        +PhiThanhToan phi_thanh_toan [FK]
+        +Decimal so_tien
+        +String phuong_thuc_thanh_toan
+        +DateTime ngay_thanh_toan
+        +String trang_thai
+        +String ma_giao_dich_ngan_hang
+        +String ten_ngan_hang
+        +CustomUser nhan_vien_xu_ly [FK, nullable]
+        +Text ghi_chu
+        +Text ly_do_that_bai
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +approve() void
+        +reject(reason) void
+        +process_banking() Boolean
+        +send_confirmation() void
+        +save() void
+        +delete() void
+    }
+
+    class CongNo {
+        +String ma_cong_no [PK]
+        +HopDong hop_dong [FK]
+        +Decimal so_tien_no
+        +Date ngay_phat_sinh
+        +Date ngay_dao_han
+        +Boolean da_thanh_toan
+        +Date ngay_thanh_toan
+        +Decimal phi_tre_han
+        +Decimal ty_le_phi_tre_han
+        +Text ghi_chu
+        +DateTime created_at
+        +DateTime updated_at
+        +CustomUser created_by [FK]
+        +CustomUser updated_by [FK]
+        +Boolean is_active
+        +so_ngay_tre_han() Integer
+        +tong_cong_no() Decimal
+        +calculate_late_fee() Decimal
+        +escalate_collection() void
+        +clear_debt() void
+        +save() void
+        +delete() void
+    }
+
+    %% Relationships
+    CustomUser "1" *--> "*" KhachHang : quan_ly
+    CustomUser "1" *--> "*" HopDong : ban_hang
+    CustomUser "1" *--> "*" ThanhToan : xu_ly
+    CustomUser "1" *--> "*" Address : tao_dia_chi
+    CustomUser "1" *--> "*" SanPham : quan_ly_sp
+    CustomUser "1" *--> "*" BangPhiCoi : cau_hinh_phi
+    CustomUser "1" *--> "*" PhiQuanLy : thiet_lap_phi
+    CustomUser "1" *--> "*" PhiThanhToan : tao_phi_tt
+    CustomUser "1" *--> "*" CongNo : theo_doi_no
+    
+    Address "1" --> "*" KhachHang : dia_chi_cua
+    
+    KhachHang "1" --> "*" HopDong : so_huu
+    SanPham "1" --> "*" HopDong : ap_dung_cho
+    SanPham "1" --> "1" PhiQuanLy : co_cau_truc_phi
+    SanPham "1" --> "*" BangPhiCoi : co_bang_phi
+    
+    HopDong "1" --> "*" PhiThanhToan : tao_ra_phi
+    HopDong "1" --> "*" ThanhToan : co_thanh_toan
+    HopDong "1" --> "*" CongNo : co_the_no
+    
+    PhiThanhToan "1" --> "*" ThanhToan : duoc_thanh_toan

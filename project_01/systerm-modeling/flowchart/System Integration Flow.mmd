@@ -1,0 +1,66 @@
+flowchart TD
+    A[External System Request] --> B{Loại tích hợp}
+    
+    B -->|Banking API| C[Xử lý giao dịch ngân hàng]
+    B -->|Email Service| D[Gửi email/notification]
+    B -->|SMS Gateway| E[Gửi SMS]
+    B -->|Document Service| F[Quản lý tài liệu]
+    B -->|Reporting API| G[Tạo báo cáo]
+    
+    C --> H[Validate thông tin TK]
+    H --> I{TK hợp lệ?}
+    I -->|Không| J[Trả về lỗi TK]
+    I -->|Có| K[Thực hiện giao dịch]
+    K --> L{Giao dịch thành công?}
+    L -->|Có| M[Trả về mã GD]
+    L -->|Không| N[Trả về lỗi GD]
+    
+    D --> O[Tạo email template]
+    O --> P[Thay thế placeholder]
+    P --> Q[Gửi qua SMTP]
+    Q --> R{Gửi thành công?}
+    R -->|Có| S[Log success]
+    R -->|Không| T[Retry gửi]
+    T --> U{Retry < 3 lần?}
+    U -->|Có| Q
+    U -->|Không| V[Log failed]
+    
+    E --> W[Format tin nhắn]
+    W --> X[Gửi qua SMS Gateway]
+    X --> Y{SMS thành công?}
+    Y -->|Có| Z[Log SMS success]
+    Y -->|Không| AA[Log SMS failed]
+    
+    F --> BB[Upload tài liệu]
+    BB --> CC[Scan virus]
+    CC --> DD{File an toàn?}
+    DD -->|Không| EE[Reject file]
+    DD -->|Có| FF[Lưu vào storage]
+    FF --> GG[Tạo metadata]
+    GG --> HH[Trả về file URL]
+    
+    G --> II[Xác định loại báo cáo]
+    II --> JJ{Loại báo cáo}
+    JJ -->|Customer Report| KK[Tạo BC khách hàng]
+    JJ -->|Financial Report| LL[Tạo BC tài chính]
+    JJ -->|Performance Report| MM[Tạo BC hiệu suất]
+    
+    KK --> NN[Export PDF/Excel]
+    LL --> NN
+    MM --> NN
+    NN --> OO[Trả về file báo cáo]
+    
+    J --> PP[Log API Error]
+    N --> PP
+    V --> PP
+    AA --> PP
+    EE --> PP
+    
+    M --> QQ[Log API Success]
+    S --> QQ
+    Z --> QQ
+    HH --> QQ
+    OO --> QQ
+    
+    PP --> RR[Return Error Response]
+    QQ --> SS[Return Success Response]

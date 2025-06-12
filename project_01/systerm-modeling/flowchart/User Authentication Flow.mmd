@@ -1,0 +1,36 @@
+flowchart TD
+    A[Người dùng truy cập hệ thống] --> B{Đã đăng nhập?}
+    B -->|Có| C[Kiểm tra token hợp lệ]
+    B -->|Không| D[Hiển thị form đăng nhập]
+    
+    C --> E{Token còn hiệu lực?}
+    E -->|Có| F[Cho phép truy cập]
+    E -->|Không| G[Yêu cầu đăng nhập lại]
+    
+    D --> H[Nhập username/password]
+    H --> I[Gửi thông tin đăng nhập]
+    I --> J{Thông tin hợp lệ?}
+    
+    J -->|Không| K[Hiển thị lỗi đăng nhập]
+    K --> H
+    
+    J -->|Có| L[Tạo JWT token]
+    L --> M[Lưu token vào session]
+    M --> N{Kiểm tra vai trò}
+    
+    N --> O[Admin]
+    N --> P[Manager]
+    N --> Q[Agent]
+    N --> R[Customer]
+    
+    O --> S[Dashboard Admin]
+    P --> T[Dashboard Manager]
+    Q --> U[Dashboard Agent]
+    R --> V[Dashboard Customer]
+    
+    G --> D
+    F --> W[Tiếp tục sử dụng hệ thống]
+    S --> W
+    T --> W
+    U --> W
+    V --> W

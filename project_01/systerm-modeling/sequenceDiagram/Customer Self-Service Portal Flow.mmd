@@ -1,0 +1,63 @@
+sequenceDiagram
+    participant Customer as Customer
+    participant Portal as Customer Portal
+    participant API as Django API
+    participant AuthService as Auth Service
+    participant ContractService as Contract Service
+    participant PaymentService as Payment Service
+    participant DB as Database
+
+    Customer->>+Portal: Access customer portal
+    Portal->>+API: POST /auth/login/ {customer_credentials}
+    API->>+AuthService: authenticate_customer()
+    AuthService->>+DB: Validate customer credentials
+    DB-->>-AuthService: Customer user data
+    AuthService-->>-API: Authentication successful
+    API-->>-Portal: {access_token, customer_info}
+    Portal-->>-Customer: Login successful, show dashboard
+
+    Customer->>+Portal: View my contracts
+    Portal->>+API: GET /hopdong/ (with customer token)
+    API->>API: Extract customer_id from token
+    API->>+ContractService: get_customer_contracts(customer_id)
+    ContractService->>+DB: SELECT contracts WHERE customer=customer_id
+    DB-->>-ContractService: Customer's contracts
+    ContractService-->>-API: Contract list
+    API-->>-Portal: Customer's contract data
+    Portal-->>-Customer: Display contract list
+
+    Customer->>+Portal: View contract details
+    Portal->>+API: GET /hopdong/HD87654321/
+    API->>+ContractService: get_contract_details(ma_hd, customer_id)
+    ContractService->>+DB: SELECT contract details
+    DB-->>-ContractService: Contract details
+    ContractService->>ContractService: verify_customer_ownership()
+    ContractService-->>-API: Contract details (authorized)
+    API-->>-Portal: Detailed contract info
+    Portal-->>-Customer: Show contract details
+
+    Customer->>+Portal: Check payment history
+    Portal->>+API: GET /thanh-toan/HD87654321/
+    API->>+PaymentService: get_payment_history(ma_hd, customer_id)
+    PaymentService->>+DB: SELECT payment history
+    DB-->>-PaymentService: Payment records
+    PaymentService-->>-API: Payment history
+    API-->>-Portal: Payment history data
+    Portal-->>-Customer: Display payment history
+
+    Customer->>+Portal: View pending payments
+    Portal->>+API: GET /phi-thanhtoan/HD87654321/
+    API->>+PaymentService: get_pending_payments(ma_hd, customer_id)
+    PaymentService->>+DB: SELECT pending payment dues
+    DB-->>-PaymentService: Pending payments
+    PaymentService-->>-API: Pending payment list
+    API-->>-Portal: Pending payments data
+    Portal-->>-Customer: Show amounts due
+
+    Customer->>+Portal: Update contact information
+    Portal->>+API: PATCH /khachhang/KH12345678/ {updated_info}
+    API->>API: Verify customer ownership
+    API->>+DB: UPDATE customer contact info
+    DB-->>-API: Customer info updated
+    API-->>-Portal: Update successful
+    Portal-->>-Customer: Contact info updated confirmation

@@ -1,0 +1,61 @@
+sequenceDiagram
+    participant Scheduler as Cron Scheduler
+    participant API as Django API
+    participant FeeGenerationService as Fee Generation Service
+    participant ContractService as Contract Service
+    participant FeeCalculator as Fee Calculator
+    participant DB as Database
+    participant NotificationService as Notification Service
+
+    Note over Scheduler,NotificationService: Monthly automated process
+
+    Scheduler->>+API: Trigger monthly fee generation
+    API->>+FeeGenerationService: generate_monthly_fees(current_month)
+    
+    FeeGenerationService->>+ContractService: get_active_contracts()
+    ContractService->>+DB: SELECT active contracts
+    DB-->>-ContractService: Active contract list
+    ContractService-->>-FeeGenerationService: Contract list
+    
+    loop For each active contract
+        FeeGenerationService->>+DB: CHECK if fee already generated
+        DB-->>-FeeGenerationService: Fee generation status
+        
+        alt Fee not yet generated
+            FeeGenerationService->>+FeeCalculator: calculate_monthly_fee(contract)
+            
+            FeeCalculator->>+DB: GET contract and product details
+            DB-->>-FeeCalculator: Contract data
+            
+            FeeCalculator->>FeeCalculator: calculate_base_premium()
+            FeeCalculator->>FeeCalculator: calculate_coi_fee()
+            FeeCalculator->>FeeCalculator: calculate_management_fee()
+            FeeCalculator-->>-FeeGenerationService: Monthly fee calculated
+            
+            FeeGenerationService->>+DB: INSERT INTO phi_thanh_toan
+            DB-->>-FeeGenerationService: Payment due created
+            
+            FeeGenerationService->>+NotificationService: schedule_payment_reminder(customer, payment_due)
+            NotificationService-->>-FeeGenerationService: Reminder scheduled
+            
+        else Fee already generated
+            FeeGenerationService->>FeeGenerationService: Skip this contract
+        end
+    end
+    
+    FeeGenerationService-->>-API: Monthly fee generation completed
+    API-->>-Scheduler: Process completed
+
+    Note over Scheduler,NotificationService: Send payment reminders
+
+    Scheduler->>+NotificationService: Send scheduled reminders
+    NotificationService->>+DB: GET pending payment dues
+    DB-->>-NotificationService: Payment due list
+    
+    loop For each payment due
+        NotificationService->>NotificationService: generate_payment_reminder()
+        NotificationService->>NotificationService: send_email_reminder()
+        NotificationService->>NotificationService: send_sms_reminder()
+    end
+    
+    NotificationService-->>-Scheduler: Reminders sent

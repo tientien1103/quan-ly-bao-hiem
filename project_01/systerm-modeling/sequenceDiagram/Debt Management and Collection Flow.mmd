@@ -1,0 +1,79 @@
+sequenceDiagram
+    participant System as System Scheduler
+    participant API as Django API
+    participant DebtService as Debt Service
+    participant ContractService as Contract Service
+    participant NotificationService as Notification Service
+    participant CollectionService as Collection Service
+    participant DB as Database
+
+    Note over System,DB: Daily automated debt management process
+
+    System->>+API: Trigger daily debt check
+    API->>+DebtService: check_overdue_payments()
+    
+    DebtService->>+DB: SELECT overdue payments
+    DB-->>-DebtService: Overdue payment list
+    
+    loop For each overdue payment
+        DebtService->>DebtService: calculate_days_overdue()
+        DebtService->>DebtService: calculate_late_fees()
+        
+        DebtService->>+DB: CHECK existing debt record
+        DB-->>-DebtService: Debt record status
+        
+        alt No existing debt record
+            DebtService->>+DB: INSERT INTO cong_no
+            DB-->>-DebtService: Debt record created
+        else Existing debt record
+            DebtService->>+DB: UPDATE cong_no (recalculate fees)
+            DB-->>-DebtService: Debt record updated
+        end
+        
+        DebtService->>+NotificationService: send_overdue_notice(customer, debt_info)
+        NotificationService->>NotificationService: generate_overdue_email()
+        NotificationService->>NotificationService: generate_sms_alert()
+        NotificationService-->>-DebtService: Notifications sent
+    end
+    
+    DebtService-->>-API: Debt check completed
+
+    Note over System,DB: Escalation for long-term overdue accounts
+
+    System->>+API: Trigger weekly collection review
+    API->>+CollectionService: review_collection_cases()
+    
+    CollectionService->>+DB: SELECT debts overdue > 30 days
+    DB-->>-CollectionService: Long-term overdue list
+    
+    loop For each long-term overdue account
+        CollectionService->>CollectionService: assess_collection_urgency()
+        
+        alt 30-60 days overdue
+            CollectionService->>+NotificationService: send_formal_notice(customer)
+            NotificationService-->>-CollectionService: Formal notice sent
+            
+        else 60-90 days overdue
+            CollectionService->>+ContractService: suspend_contract_benefits(contract)
+            ContractService->>+DB: UPDATE contract status
+            DB-->>-ContractService: Contract suspended
+            ContractService-->>-CollectionService: Benefits suspended
+            
+            CollectionService->>+NotificationService: send_suspension_notice(customer)
+            NotificationService-->>-CollectionService: Suspension notice sent
+            
+        else Over 90 days overdue
+            CollectionService->>+ContractService: initiate_contract_termination(contract)
+            ContractService->>+DB: UPDATE contract status = 'terminated'
+            DB-->>-ContractService: Contract terminated
+            ContractService-->>-CollectionService: Contract terminated
+            
+            CollectionService->>+NotificationService: send_termination_notice(customer)
+            NotificationService-->>-CollectionService: Termination notice sent
+            
+            CollectionService->>CollectionService: transfer_to_external_collection()
+        end
+    end
+    
+    CollectionService-->>-API: Collection review completed
+    API-->>-System: Debt management cycle completed

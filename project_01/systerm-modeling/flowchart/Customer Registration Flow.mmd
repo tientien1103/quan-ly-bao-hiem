@@ -1,0 +1,39 @@
+flowchart TD
+    A[Agent bắt đầu tạo khách hàng] --> B[Nhập thông tin cơ bản]
+    B --> C[Nhập thông tin CMND/CCCD]
+    C --> D[Kiểm tra CMND đã tồn tại]
+    
+    D --> E{CMND đã tồn tại?}
+    E -->|Có| F[Hiển thị lỗi trùng lặp]
+    F --> C
+    
+    E -->|Không| G[Nhập thông tin liên hệ]
+    G --> H[Kiểm tra số điện thoại]
+    H --> I{Số điện thoại hợp lệ?}
+    I -->|Không| J[Hiển thị lỗi format]
+    J --> G
+    
+    I -->|Có| K[Nhập địa chỉ]
+    K --> L[Nhập thông tin nghề nghiệp]
+    L --> M[Nhập thông tin người thụ hưởng]
+    M --> N[Validate tất cả dữ liệu]
+    
+    N --> O{Dữ liệu hợp lệ?}
+    O -->|Không| P[Hiển thị lỗi validation]
+    P --> Q[Sửa thông tin]
+    Q --> N
+    
+    O -->|Có| R[Tạo địa chỉ mới]
+    R --> S[Tạo record khách hàng]
+    S --> T[Tự động tạo mã khách hàng]
+    T --> U[Lưu vào database]
+    
+    U --> V{Lưu thành công?}
+    V -->|Không| W[Hiển thị lỗi hệ thống]
+    W --> X[Rollback transaction]
+    X --> Y[Thử lại]
+    Y --> R
+    
+    V -->|Có| Z[Gửi email chào mừng]
+    Z --> AA[Hiển thị thông tin khách hàng]
+    AA --> BB[Hoàn thành đăng ký]

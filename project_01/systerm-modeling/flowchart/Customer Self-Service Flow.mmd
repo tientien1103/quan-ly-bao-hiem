@@ -1,0 +1,52 @@
+flowchart TD
+    A[Khách hàng truy cập portal] --> B[Đăng nhập với thông tin TK]
+    B --> C{Đăng nhập thành công?}
+    C -->|Không| D[Hiển thị lỗi đăng nhập]
+    D --> B
+    
+    C -->|Có| E[Hiển thị dashboard khách hàng]
+    E --> F{Khách hàng chọn chức năng}
+    
+    F -->|Xem hợp đồng| G[Lấy danh sách HĐ của KH]
+    F -->|Xem lịch sử TT| H[Lấy lịch sử thanh toán]
+    F -->|Xem phí cần đóng| I[Lấy phí chưa thanh toán]
+    F -->|Cập nhật thông tin| J[Form sửa thông tin]
+    F -->|Đăng xuất| K[Xóa session và logout]
+    
+    G --> L[Hiển thị chi tiết từng HĐ]
+    L --> M{Xem chi tiết HĐ?}
+    M -->|Có| N[Hiển thị đầy đủ thông tin HĐ]
+    M -->|Không| F
+    N --> F
+    
+    H --> O[Hiển thị bảng lịch sử]
+    O --> P{Xuất báo cáo?}
+    P -->|Có| Q[Tạo file PDF/Excel]
+    P -->|Không| F
+    Q --> R[Download file]
+    R --> F
+    
+    I --> S[Hiển thị các khoản phí đến hạn]
+    S --> T{Muốn thanh toán online?}
+    T -->|Có| U[Chuyển đến gateway thanh toán]
+    T -->|Không| V[Hiển thị thông tin TT offline]
+    U --> W[Xử lý thanh toán online]
+    W --> X{Thanh toán thành công?}
+    X -->|Có| Y[Cập nhật trạng thái]
+    X -->|Không| Z[Hiển thị lỗi TT]
+    Y --> AA[Thông báo thành công]
+    Z --> S
+    V --> F
+    AA --> F
+    
+    J --> BB[Hiển thị form cập nhật]
+    BB --> CC[Nhập thông tin mới]
+    CC --> DD[Validate dữ liệu]
+    DD --> EE{Dữ liệu hợp lệ?}
+    EE -->|Không| FF[Hiển thị lỗi validation]
+    FF --> CC
+    EE -->|Có| GG[Cập nhật database]
+    GG --> HH[Thông báo cập nhật thành công]
+    HH --> F
+    
+    K --> II[Redirect về trang đăng nhập]

@@ -1,0 +1,46 @@
+flowchart TD
+    A[Agent chọn khách hàng] --> B[Chọn sản phẩm bảo hiểm]
+    B --> C[Kiểm tra độ tuổi phù hợp]
+    
+    C --> D{Tuổi phù hợp với sản phẩm?}
+    D -->|Không| E[Hiển thị lỗi tuổi]
+    E --> B
+    
+    D -->|Có| F[Nhập số tiền bảo hiểm]
+    F --> G[Kiểm tra giới hạn số tiền]
+    
+    G --> H{Số tiền trong giới hạn?}
+    H -->|Không| I[Hiển thị lỗi số tiền]
+    I --> F
+    
+    H -->|Có| J[Tính phí bảo hiểm]
+    J --> K[Tính phí coi]
+    K --> L[Tính phí quản lý]
+    L --> M[Hiển thị tổng phí]
+    
+    M --> N{Khách hàng đồng ý?}
+    N -->|Không| O[Điều chỉnh điều kiện]
+    O --> F
+    
+    N -->|Có| P[Nhập thông tin hợp đồng]
+    P --> Q[Nhập ngày hiệu lực]
+    Q --> R[Nhập ngày kết thúc]
+    R --> S[Chọn kỳ hạn đóng phí]
+    S --> T[Nhập người thụ hưởng]
+    
+    T --> U[Tạo hợp đồng với trạng thái CHỜ DUYỆT]
+    U --> V[Thông báo cho Manager]
+    V --> W[Manager xem xét hợp đồng]
+    
+    W --> X{Manager quyết định}
+    X -->|Phê duyệt| Y[Cập nhật trạng thái HOẠT ĐỘNG]
+    X -->|Từ chối| Z[Cập nhật trạng thái HỦY BỎ]
+    
+    Y --> AA[Tạo lịch thanh toán]
+    AA --> BB[Thông báo cho Agent và KH]
+    BB --> CC[Hợp đồng có hiệu lực]
+    
+    Z --> DD[Thông báo lý do từ chối]
+    DD --> EE[Kết thúc quy trình]
+    
+    CC --> FF[Hoàn thành]

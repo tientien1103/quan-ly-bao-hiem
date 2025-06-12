@@ -1,0 +1,41 @@
+flowchart TD
+    A[Yêu cầu tính phí] --> B[Lấy thông tin khách hàng]
+    B --> C[Lấy thông tin sản phẩm]
+    C --> D[Lấy số tiền bảo hiểm]
+    D --> E[Tính tuổi khách hàng]
+    
+    E --> F[Tìm bảng phí coi phù hợp]
+    F --> G{Có bảng phí coi?}
+    
+    G -->|Có| H[Áp dụng bảng phí coi]
+    H --> I[Tính phí coi = số tiền × tỷ lệ + phí cố định]
+    
+    G -->|Không| J[Sử dụng công thức cơ bản]
+    J --> K[Tính phí cơ bản theo tuổi]
+    
+    I --> L[Tính phí quản lý]
+    K --> L
+    
+    L --> M[Lấy tỷ lệ phí quản lý]
+    M --> N[Phí quản lý = phí BH × tỷ lệ]
+    N --> O[Kiểm tra giới hạn min/max]
+    
+    O --> P{Trong giới hạn?}
+    P -->|Không| Q[Áp dụng giới hạn]
+    P -->|Có| R[Giữ nguyên phí quản lý]
+    
+    Q --> S[Tính tổng phí]
+    R --> S
+    
+    S --> T[Tổng = Phí BH + Phí coi + Phí quản lý]
+    T --> U[Kiểm tra với giới hạn sản phẩm]
+    
+    U --> V{Tổng phí hợp lệ?}
+    V -->|Không| W[Báo lỗi vượt giới hạn]
+    V -->|Có| X[Trả về kết quả tính phí]
+    
+    W --> Y[Điều chỉnh điều kiện]
+    Y --> D
+    
+    X --> Z[Hiển thị chi tiết phí]
+    Z --> AA[Hoàn thành tính phí]

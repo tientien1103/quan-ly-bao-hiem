@@ -1,0 +1,56 @@
+sequenceDiagram
+    participant Client as Client
+    participant API as Django API
+    participant FeeCalculator as Fee Calculator
+    participant DB as Database
+    participant COIService as COI Service
+    participant ManagementFeeService as Management Fee Service
+
+    Client->>+API: GET /phi-coi/?ma_sp=NT123456&tuoi=34&menh_gia=500000000
+    API->>+FeeCalculator: calculate_coi_fee(ma_sp, age, amount)
+    
+    FeeCalculator->>+DB: GET product details
+    DB-->>-FeeCalculator: Product data
+    
+    FeeCalculator->>FeeCalculator: validate_age_product_compatibility()
+    
+    FeeCalculator->>+COIService: find_applicable_coi_table(ma_sp, age, amount)
+    COIService->>+DB: SELECT FROM bang_phi_coi WHERE conditions
+    DB-->>-COIService: COI table data
+    
+    alt COI table found
+        COIService->>COIService: calculate_coi_using_table()
+        COIService-->>FeeCalculator: COI fee calculated
+    else No COI table found
+        COIService-->>FeeCalculator: Use default calculation
+        FeeCalculator->>FeeCalculator: use_product_basic_formula()
+    end
+    deactivate COIService
+    
+    FeeCalculator-->>-API: COI fee result
+    API-->>-Client: {phi_coi: 4080000, calculation_method: "Bảng phí coi"}
+
+    Note over Client,ManagementFeeService: Full premium calculation for contract
+
+    Client->>+API: GET /hopdong/HD87654321/tinh-phi/?thang_nam=2024-12
+    API->>+FeeCalculator: calculate_full_premium(contract, month)
+    
+    FeeCalculator->>+DB: GET contract details
+    DB-->>-FeeCalculator: Contract data
+    
+    FeeCalculator->>FeeCalculator: calculate_base_premium()
+    
+    FeeCalculator->>+COIService: calculate_coi_fee(contract_params)
+    COIService->>COIService: apply_coi_calculation()
+    COIService-->>-FeeCalculator: COI fee
+    
+    FeeCalculator->>+ManagementFeeService: calculate_management_fee(base_premium)
+    ManagementFeeService->>+DB: GET management fee rates
+    DB-->>-ManagementFeeService: Fee rates
+    ManagementFeeService->>ManagementFeeService: apply_min_max_limits()
+    ManagementFeeService-->>-FeeCalculator: Management fee
+    
+    FeeCalculator->>FeeCalculator: sum_all_fees()
+    FeeCalculator-->>-API: Complete fee breakdown
+    
+    API-->>-Client: {phi_bao_hiem: 5000000, phi_quan_ly: 250000, phi_coi: 4080000, tong_phi: 9330000}
